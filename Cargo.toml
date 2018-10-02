@@ -18,5 +18,5 @@ libflate = "0.1"
 rand = "0.3"
 serde = "1.0.79"
 serde_derive = "1.0.79"
-serde_json = "1.0.31"
+serde_json = "^1.0.30"
 snap = { version = "0.2.3", optional = true }
