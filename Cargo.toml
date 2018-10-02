@@ -9,13 +9,14 @@ repository = "https://github.com/flavray/avro-rs"
 
 [features]
 snappy = ["snap"]
+unsigned_long_as_fixed = []
 
 [dependencies]
 failure = "0.1.1"
 failure_derive = "0.1.1"
 libflate = "0.1"
 rand = "0.3"
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
+serde = "1.0.79"
+serde_derive = "1.0.79"
+serde_json = "1.0.31"
 snap = { version = "0.2.3", optional = true }

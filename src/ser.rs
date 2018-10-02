@@ -8,6 +8,9 @@ use serde::ser::{self, Error as SerdeError, Serialize};
 
 use types::{ToAvro, Value};
 
+#[cfg(feature = "unsigned_long_as_fixed")]
+use util::{transform_u64_to_array_of_u8, transform_u128_to_array_of_u8};
+
 #[derive(Clone, Default)]
 pub struct Serializer {}
 
@@ -126,12 +129,23 @@ impl<'b> ser::Serializer for &'b mut Serializer {
         }
     }
 
+    #[cfg(not(feature = "unsigned_long_as_fixed"))]
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
         if v <= i64::max_value() as u64 {
             self.serialize_i64(v as i64)
         } else {
             Err(Error::custom("u64 is too large"))
         }
+    }
+
+    #[cfg(feature = "unsigned_long_as_fixed")]
+    fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
+        Ok(Value::Bytes(transform_u64_to_array_of_u8(v).to_vec()))
+    }
+
+    #[cfg(feature = "unsigned_long_as_fixed")]
+    fn serialize_u128(self, v: u128) -> Result<Self::Ok, Self::Error> {
+        Ok(Value::Bytes(transform_u128_to_array_of_u8(v).to_vec()))
     }
 
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
@@ -424,11 +438,33 @@ mod tests {
     fn test_to_value() {
         let test = Test {
             a: 27,
-            b: "foo".to_owned(),
+            b: "foo".to_owned()
         };
         let expected = Value::Record(vec![
             ("a".to_owned(), Value::Long(27)),
-            ("b".to_owned(), Value::String("foo".to_owned())),
+            ("b".to_owned(), Value::String("foo".to_owned()))
+        ]);
+
+        assert_eq!(to_value(test).unwrap(), expected);
+    }
+
+    #[cfg(feature = "unsigned_long_as_fixed")]
+    #[derive(Debug, Deserialize, Serialize)]
+    struct TestLong {
+        a: u128,
+        b: u64
+    }
+
+    #[cfg(feature = "unsigned_long_as_fixed")]
+    #[test]
+    fn test_serialize_unsigned() {
+        let test = TestLong {
+            a: 12345678u128,
+            b: 234567890u64
+        };
+        let expected = Value::Record(vec![
+            ("a".to_owned(), Value::Bytes(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xBCu8, 0x61u8, 0x4Eu8])),
+            ("b".to_owned(), Value::Bytes(vec![0, 0, 0, 0, 0x0Du8, 0xFBu8, 0x38u8, 0xD2u8]))
         ]);
 
         assert_eq!(to_value(test).unwrap(), expected);

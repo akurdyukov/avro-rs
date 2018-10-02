@@ -152,6 +152,40 @@ pub fn safe_len(len: usize) -> Result<usize, Error> {
     }
 }
 
+#[cfg(feature = "unsigned_long_as_fixed")]
+pub fn transform_u64_to_array_of_u8(x: u64) -> [u8; 8] {
+    let b1 : u8 = ((x >> 56) & 0xff) as u8;
+    let b2 : u8 = ((x >> 48) & 0xff) as u8;
+    let b3 : u8 = ((x >> 40) & 0xff) as u8;
+    let b4 : u8 = ((x >> 32) & 0xff) as u8;
+    let b5 : u8 = ((x >> 24) & 0xff) as u8;
+    let b6 : u8 = ((x >> 16) & 0xff) as u8;
+    let b7 : u8 = ((x >> 8) & 0xff) as u8;
+    let b8 : u8 = (x & 0xff) as u8;
+    return [b1, b2, b3, b4, b5, b6, b7, b8]
+}
+
+#[cfg(feature = "unsigned_long_as_fixed")]
+pub fn transform_u128_to_array_of_u8(x: u128) -> [u8; 16] {
+    let b1 : u8 = ((x >> 120) & 0xff) as u8;
+    let b2 : u8 = ((x >> 112) & 0xff) as u8;
+    let b3 : u8 = ((x >> 104) & 0xff) as u8;
+    let b4 : u8 = ((x >> 96) & 0xff) as u8;
+    let b5 : u8 = ((x >> 88) & 0xff) as u8;
+    let b6 : u8 = ((x >> 80) & 0xff) as u8;
+    let b7 : u8 = ((x >> 72) & 0xff) as u8;
+    let b8 : u8 = ((x >> 64) & 0xff) as u8;
+    let b9 : u8 = ((x >> 56) & 0xff) as u8;
+    let b10 : u8 = ((x >> 48) & 0xff) as u8;
+    let b11 : u8 = ((x >> 40) & 0xff) as u8;
+    let b12 : u8 = ((x >> 32) & 0xff) as u8;
+    let b13 : u8 = ((x >> 24) & 0xff) as u8;
+    let b14 : u8 = ((x >> 16) & 0xff) as u8;
+    let b15 : u8 = ((x >> 8) & 0xff) as u8;
+    let b16 : u8 = (x & 0xff) as u8;
+    return [b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
